@@ -34,14 +34,19 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.url == '/login' && req.method == 'POST') {
-    let params = null;
+    let params, statusCode
     req.on('data', body => {
       params = body
     });
     req.on('end', async () => {
       const paramsArray = Object.values(JSON.parse(params));
       const result = await db.login(paramsArray);
-      res.writeHead(200, { 'Content-Type': 'application/json' });
+      if (result.rows.length > 0){
+        statusCode = 200
+      }else{
+        statusCode = 403
+      }
+      res.writeHead(statusCode, { 'Content-Type':'application/json' });
       res.write(JSON.stringify(result));
       res.end();
     });
